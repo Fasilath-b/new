@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <title>BudgetTracker - Dashboard Financier</title>
+</head>
+
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-pie-chart-fill me-2"></i>
+                BudgetTracker
+            </a>
+            <div class="ms-auto">
+                <span class="text-white" id="currentDate"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Cartes de résumé -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                                <i class="bi bi-cash-stack text-success fs-4"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-1">Revenus totaux</h6>
+                                <h3 class="mb-0" id="totalIncome">0 FCFA</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-danger bg-opacity-10 p-3 rounded-circle">
+                                <i class="bi bi-cart text-danger fs-4"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-1">Dépenses totales</h6>
+                                <h3 class="mb-0" id="totalExpenses">0 FCFA</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-info bg-opacity-10 p-3 rounded-circle">
+                                <i class="bi bi-wallet2 text-info fs-4"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-1">Solde actuel</h6>
+                                <h3 class="mb-0" id="currentBalance">0 FCFA</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>                                                                                                  
+        </div>
+
+        <!-- Formulaire d'ajout de transaction -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="">
+                    <i class="bi bi-plus-circle me-2 text-primary"></i>
+                    Nouvelle transaction
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="transactionForm" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="transactionDate" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="transactionDesc" placeholder="Courses, salaire..." required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Catégorie</label>
+                        <select class="form-select" id="transactionCatégorie" required>
+                            <option value="">Choisir...</option>
+                            <option value="Alimentation">Alimentation</option>
+                            <option value="Logement">Logement</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Loisirs">Loisirs</option>
+                            <option value="Santé">Santé</option>
+                            <option value="Éducation">Éducation</option>
+                            <option value="Salaire">Salaire</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Montant (FCFA)</label>
+                        <input type="number" class="form-control" id="transactionMontant" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Type</label>
+                        <div class="d-flex mt-2">
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="radio" name="transactionType" id="typeIncome" value="income" checked>
+                                <label class="form-check-label text-success" for="typeIncome">
+                                    <i class="bi bi-plus-circle"></i> Revenu
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="transactionType" id="typeExpense" value="expense">
+                                <label class="form-check-label text-danger" for="typeExpense">
+                                    <i class="bi bi-dash-circle"></i> Dépense
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Ajouter
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="resetForm">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="row g-4 mb-4">
+            <!-- Graphique circulaire -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-pie-chart me-2 text-primary"></i>
+                            Répartition des dépenses par catégorie
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoryChart" height="300"></canvas>
+                        <div class="text-center text-muted mt-2" id="noCategoryData" style="display: none;">
+                            <i class="bi bi-info-circle"></i> Aucune dépense enregistrée
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Graphique en barres -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bar-chart me-2 text-primary"></i>
+                            Évolution mensuelle (Revenus vs Dépenses)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlyChart" height="300"></canvas>
+                        <div class="text-center text-muted mt-2" id="noMonthlyData" style="display: none;">
+                            <i class="bi bi-info-circle"></i> Pas assez de données
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des transactions -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul me-2 text-primary"></i>
+                    Transactions récentes
+                </h5>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="filterCategory" style="width: auto;">
+                        <option value="all">Toutes catégories</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="filterMonth" style="width: auto;">
+                        <option value="all">Tous les mois</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-danger" id="clearAllBtn">
+                        <i class="bi bi-trash"></i> Tout effacer
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Catégorie</th>
+                                <th>Montant</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsList">
+                            <!-- Les transactions seront insérées ici -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let categoryChart, monthlyChart;
+
+        // Données par défaut pour la démonstration
+        const defaultTransactions = [
+            { id: 1, date: '2026-02-01', description: 'Salaire', category: 'Salaire', montant: 500000, type: 'income' },
+            { id: 2, date: '2026-02-03', description: 'Courses', category: 'Alimentation', montant: 75000, type: 'expense' },
+            { id: 3, date: '2026-02-05', description: 'Loyer', category: 'Logement', montant: 150000, type: 'expense' },
+            { id: 4, date: '2026-02-10', description: 'Essence', category: 'Transport', montant: 30000, type: 'expense' },
+            { id: 5, date: '2026-02-15', description: 'Freelance', category: 'Freelance', montant: 200000, type: 'income' },
+            { id: 6, date: '2026-02-20', description: 'Restaurant', category: 'Loisirs', montant: 25000, type: 'expense' }
+        ];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données par défaut si aucune transaction n'existe
+            if (transactions.length === 0) {
+                transactions = defaultTransactions;
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+            }
+
+            // Afficher la date du jour
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('fr-FR', {
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            });
+
+            // Définir la date par défaut
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transactionDate').value = today;
+
+            // Initialiser les graphiques
+            initializeCharts();
+
+            // Charger les données
+            loadTransactions();
+            updateCategories();
+            updateMonthFilter();
+            updateSummary();
+            updateCharts();
+
+            // Event listeners
+            document.getElementById('transactionForm').addEventListener('submit', addTransaction);
+            document.getElementById('resetForm').addEventListener('click', resetForm);
+            document.getElementById('filterCategory').addEventListener('change', filterTransactions);
+            document.getElementById('filterMonth').addEventListener('change', filterTransactions);
+            document.getElementById('clearAllBtn').addEventListener('click', clearAllTransactions);
+        });
+
+        // Initialiser les graphiques
+        function initializeCharts() {
+            // Graphique circulaire des catégories
+            const ctx1 = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#FF6384', '#C9CBCF', '#7BC8A4'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Graphique en barres mensuel
+            const ctx2 = document.getElementById('monthlyChart').getContext('2d');
+            monthlyChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Revenus',
+                            data: [],
+                            backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                            borderColor: '#28a745',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Dépenses',
+                            data: [],
+                            backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                            borderColor: '#dc3545',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ajouter une transaction
+        function addTransaction(e) {
+            e.preventDefault();
+
+            const transaction = {
+                id: Date.now(),
+                date: document.getElementById('transactionDate').value,
+                description: document.getElementById('transactionDesc').value,
+                category: document.getElementById('transactionCatégorie').value,
+                montant: parseFloat(document.getElementById('transactionMontant').value),
+                type: document.querySelector('input[name="transactionType"]:checked').value
+            };
+
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            // Mettre à jour l'interface
+            loadTransactions();
+            updateCategories();
+            updateMonthFilter();
+            updateSummary();
+            updateCharts();
+            resetForm();
+
+            alert('Transaction ajoutée avec succès!');
+        }
+
+        // Mettre à jour les filtres de catégories
+        function updateCategories() {
+            const categories = [...new Set(transactions.map(t => t.category))];
+            const filterCategory = document.getElementById('filterCategory');
+            const selectedValue = filterCategory.value;
+            
+            filterCategory.innerHTML = '<option value="all">Toutes catégories</option>';
+            categories.forEach(category => {
+                filterCategory.innerHTML += `<option value="${category}">${category}</option>`;
+            });
+            
+            filterCategory.value = selectedValue;
+        }
+
+        // Mettre à jour le filtre des mois
+        function updateMonthFilter() {
+            const months = [...new Set(transactions.map(t => {
+                const date = new Date(t.date);
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            }))].sort().reverse();
+            
+            const filterMonth = document.getElementById('filterMonth');
+            const selectedValue = filterMonth.value;
+            
+            filterMonth.innerHTML = '<option value="all">Tous les mois</option>';
+            months.forEach(month => {
+                const [year, monthNum] = month.split('-');
+                const date = new Date(year, monthNum - 1);
+                const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                filterMonth.innerHTML += `<option value="${month}">${monthName}</option>`;
+            });
+            
+            filterMonth.value = selectedValue;
+        }
+
+        // Filtrer les transactions
+        function filterTransactions() {
+            loadTransactions();
+        }
+
+        // Charger et afficher les transactions
+        function loadTransactions() {
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const monthFilter = document.getElementById('filterMonth').value;
+            
+            let filteredTransactions = [...transactions];
+            
+            if (categoryFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(t => t.category === categoryFilter);
+            }
+            
+            if (monthFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(t => {
+                    const date = new Date(t.date);
+                    const transactionMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    return transactionMonth === monthFilter;
+                });
+            }
+            
+            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const tbody = document.getElementById('transactionsList');
+            tbody.innerHTML = '';
+            
+            filteredTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                const montantClass = transaction.type === 'income' ? 'text-success fw-bold' : 'text-danger fw-bold';
+                const sign = transaction.type === 'income' ? '+' : '-';
+                
+                row.innerHTML = `
+                    <td>${new Date(transaction.date).toLocaleDateString('fr-FR')}</td>
+                    <td>${transaction.description}</td>
+                    <td><span class="badge bg-secondary">${transaction.category}</span></td>
+                    <td class="${montantClass}">${sign} ${transaction.montant.toFixed(2)} FCFA</td>
+                    <td>
+                        <i class="bi bi-trash text-danger" style="cursor: pointer;" onclick="deleteTransaction(${transaction.id})"></i>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            if (filteredTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Aucune transaction trouvée</td></tr>';
+            }
+        }
+
+        // Supprimer une transaction
+        window.deleteTransaction = function(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                loadTransactions();
+                updateCategories();
+                updateMonthFilter();
+                updateSummary();
+                updateCharts();
+            }
+        };
+
+        // Mettre à jour le résumé
+        function updateSummary() {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.montant, 0);
+            
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.montant, 0);
+            
+            const balance = totalIncome - totalExpenses;
+            
+            document.getElementById('totalIncome').textContent = totalIncome.toFixed(2) + ' FCFA';
+            document.getElementById('totalExpenses').textContent = totalExpenses.toFixed(2) + ' FCFA';
+            document.getElementById('currentBalance').textContent = balance.toFixed(2) + ' FCFA';
+            
+            // Changer la couleur du solde
+            document.getElementById('currentBalance').style.color = balance >= 0 ? '#198754' : '#dc3545';
+        }
+
+        // Mettre à jour les graphiques
+        function updateCharts() {
+            // Graphique des catégories (uniquement les dépenses)
+            const expensesByCategory = {};
+            transactions.filter(t => t.type === 'expense').forEach(t => {
+                expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.montant;
+            });
+            
+            const categories = Object.keys(expensesByCategory);
+            const categoryData = Object.values(expensesByCategory);
+            
+            document.getElementById('noCategoryData').style.display = categories.length === 0 ? 'block' : 'none';
+            
+            categoryChart.data.labels = categories;
+            categoryChart.data.datasets[0].data = categoryData;
+            categoryChart.update();
+
+            // Graphique mensuel
+            const monthlyData = {};
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { income: 0, expense: 0 };
+                }
+                
+                if (t.type === 'income') {
+                    monthlyData[monthKey].income += t.montant;
+                } else {
+                    monthlyData[monthKey].expense += t.montant;
+                }
+            });
+            
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const monthLabels = sortedMonths.map(month => {
+                const [year, monthNum] = month.split('-');
+                return new Date(year, monthNum - 1).toLocaleDateString('fr-FR', { month: 'short' });
+            });
+            
+            const incomeData = sortedMonths.map(month => monthlyData[month].income);
+            const expenseData = sortedMonths.map(month => monthlyData[month].expense);
+            
+            document.getElementById('noMonthlyData').style.display = sortedMonths.length === 0 ? 'block' : 'none';
+            
+            monthlyChart.data.labels = monthLabels;
+            monthlyChart.data.datasets[0].data = incomeData;
+            monthlyChart.data.datasets[1].data = expenseData;
+            monthlyChart.update();
+        }
+
+        // Réinitialiser le formulaire
+        function resetForm() {
+            document.getElementById('transactionForm').reset();
+            document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('typeIncome').checked = true;
+        }
+
+        // Tout effacer
+        function clearAllTransactions() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer TOUTES les transactions ?')) {
+                transactions = [];
+                localStorage.removeItem('transactions');
+                loadTransactions();
+                updateCategories();
+                updateMonthFilter();
+                updateSummary();
+                updateCharts();
+                alert('Toutes les transactions ont été effacées');
+            }
+        }
+    </script>
+</body>
+</html>
